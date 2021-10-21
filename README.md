@@ -1,5 +1,5 @@
 # box-score-scraper
-Finding high-quality, clean, interesting data that is publicly available can be a big challenge. Sometimes, it is easier to just scrape and clean the data yourself. I was interested in exploring the box scores from professional sporting events in the NBA, NHL, and NFL. I scraped NHL and NFL data from [ESPN](https://www.espn.com/) and NBA data from [Basketball Reference](https://www.basketball-reference.com/) for games occuring in the last 10 years. I then cleaned and added some extra metadata to hopefully make these datasets interesting to explore, but I also kept them relatively simple.
+Finding high-quality, clean, interesting data that is publicly available can be a big challenge. Sometimes, it is easier to just scrape and clean the data yourself. I was interested in exploring the box scores from professional sporting events in the NBA, NHL, and NFL. I scraped NHL and NFL data from [ESPN](https://www.espn.com/) and NBA data from [Basketball Reference](https://www.basketball-reference.com/) for games occuring in the last 11 years. I then cleaned and added some extra metadata to hopefully make these datasets interesting to explore, but I also kept them relatively simple.
 
 ## Workflow
 There are effectively two steps in the process: scraping and cleaning. `scraper.py` implements the ability to scrape box score data for the NFL, NHL, or NBA in any range of time. For this project, the range was only 10 years, but the script could be used to go further back. `cleaner.py` can then be used on the raw, scraped data to create the final deliverable. The cleaning stage standardizes the box scores, and calculates scoring margins for each quarter/period and point totals. The cleaning also adds extra data:
@@ -13,8 +13,8 @@ There are effectively two steps in the process: scraping and cleaning. `scraper.
 
 ## Cleaned Data Contents
 This repository contains the following:
-* `NHL/nhl_cleaned.csv`: box scores for every NHL game between 10/7/2010 and 9/28/2020 (10 complete seasons, 12563 games)
-* `NBA/nba_cleaned.csv`: box scores for every NBA game between 10/26/2010 and 10/11/2020 (10 complete seasons, 12721 games)
+* `NHL/nhl_cleaned.csv`: box scores for every NHL game between 10/7/2010 and 7/7/2021 (11 complete seasons, 13510 games)
+* `NBA/nba_cleaned.csv`: box scores for every NBA game between 10/26/2010 and 10/11/2020 (10 complete seasons, 13892 games)
 * `NFL/nfl_cleaned.csv`: box scores for every NFL game between 9/9/2010 and 2/7/2021 (11 complete seasons, 2939 games)
 
 ## Data Fields
