@@ -1,10 +1,7 @@
 from bs4 import BeautifulSoup
+import requests
 
 URL = 'https://www.basketball-reference.com/boxscores/?month=MONTH&day=DAY&year=YEAR'
-
-def get_chrome_data(url, driver):
-	driver.get(url)
-	return driver.page_source
 
 def fix_dates_for_data(date_obj):
 	#make sure dates are in the format: 20210130
@@ -12,12 +9,12 @@ def fix_dates_for_data(date_obj):
 	new_day = str(date_obj.day) if len(str(date_obj.day)) == 2 else "0" + str(date_obj.day)
 	return str(date_obj.year) + new_month + new_day 
 
-def scrape_scores(date_obj, driver):
+def scrape_scores(date_obj):
 	#scrape the scores from a single day
 	day, month, year = str(date_obj.day), str(date_obj.month), str(date_obj.year)
 	day_stats = []
 	url = URL.replace("DAY", day).replace("MONTH", month).replace("YEAR", year)
-	data = get_chrome_data(url, driver)
+	data = requests.get(url).content
 	table_divs = BeautifulSoup(data,'html.parser').find_all("div", {'class': 'game_summary'})
 	for div in table_divs:
 		tables = div.find_all('tbody')

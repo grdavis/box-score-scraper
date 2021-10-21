@@ -1,10 +1,9 @@
 from bs4 import BeautifulSoup
+import requests
+import re
+import json
 
 URL = 'https://www.espn.com/nhl/scoreboard/_/date/DATE'
-
-def get_chrome_data(url, driver):
-	driver.get(url)
-	return driver.page_source
 
 def fix_dates_for_data(date_obj):
 	#make sure dates are in the format: 20210130
@@ -12,24 +11,25 @@ def fix_dates_for_data(date_obj):
 	new_day = str(date_obj.day) if len(str(date_obj.day)) == 2 else "0" + str(date_obj.day)
 	return str(date_obj.year) + new_month + new_day 
 
-def scrape_scores(date_obj, driver):
+def scrape_scores(date_obj):
 	#scrape the scores from a single day
 	day_stats = []
 	url = URL.replace("DATE", fix_dates_for_data(date_obj))
-	data = get_chrome_data(url, driver)
-	soup = BeautifulSoup(data,'html.parser')
-	tables = soup.find_all("div", {"class": "ScoreboardScoreCell"})
-	for table in tables:
-		if (":" in table.find('div', {"class": "ScoreCell__Time"}).text) or (table.find('div', {"class": "ScoreCell__Time"}).text == "Postponed"): continue
-		rows = table.find_all('li', {"class": "ScoreboardScoreCell__Item"})
+	data = requests.get(url).content
+	expression = re.compile("evts*")
+	games = BeautifulSoup(data,'html.parser').find('script', text = expression).string
+	games = "{" + games[games.find('\"evts\"'):games.find(',\"crntSzn\"')] + "}"
+	nestedgames = json.loads(games)
+	for game in nestedgames['evts']:
 		stats = []
-		for row in rows:
-			stats.append(row.find("div", {"class": "ScoreCell__Truncate"}).text)
-			stats += [int(stat.text) for stat in row.find_all('div', {"class": "ScoreboardScoreCell__Value"})]
-			if row.find('div', {"class": "ScoreCell__Score"}) == None: break
-			stats.append(int(row.find('div', {"class": "ScoreCell__Score"}).text))
-		if len(stats) < 10: continue
+		if 'lnescrs' not in game: continue
+		home, home_score = game['competitors'][0]['shortDisplayName'], game['competitors'][0]['score']
+		away, away_score = game['competitors'][1]['shortDisplayName'], game['competitors'][1]['score']
+		stats.append(away)
+		stats.extend(game['lnescrs']['awy'])
+		stats.append(away_score)
+		stats.append(home)
+		stats.extend(game['lnescrs']['hme'])
+		stats.append(home_score)
 		day_stats.append(stats + [fix_dates_for_data(date_obj)])
-
 	return day_stats
-

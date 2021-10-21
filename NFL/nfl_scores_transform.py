@@ -1,3 +1,8 @@
+import urllib.request
+import os
+import pandas as pd
+from datetime import date
+
 NORMAL_COLS = 13
 MAX_OTS = 1
 COL_BASE = ['Away', 'AQ1', 'AQ2', 'AQ3', 'AQ4'] + ['AOT%s' % str(i) for i in range(1, MAX_OTS + 1)] + ['Away_Final', 'Home', 'HQ1', 'HQ2', 'HQ3', 'HQ4'] + ['HOT%s' % str(i) for i in range(1, MAX_OTS + 1)] + ['Home_Final', 'Date']
@@ -39,7 +44,23 @@ def add_cumulatives(df):
 def final_clean(df):
 	#team name change
 	df = df.replace("Redskins", "Washington")
-	return df
+	return df 
+
+def get_trimmed_elo_data():
+	#team1 is home, set index on date, team1, team2 for faster lookup
+	url = 'https://projects.fivethirtyeight.com/nfl-api/nfl_elo.csv'
+	filepath = os.getcwd() + '/NFL/ELOs/' + date.today().strftime('%Y-%m-%d') + '.csv'
+	urllib.request.urlretrieve(url, filepath)
+	df = pd.read_csv(filepath)
+	df = df[['team1', 'team2', 'season', 'score1', 'score2', 'elo1_pre', 'elo2_pre']].iloc[13593:]
+
+	abb_filepath = os.getcwd() + '/NFL/abbreviations.csv'
+	abb_df = pd.read_csv(abb_filepath).set_index('Abbreviation')
+	for index, row in df.iterrows():
+		df.at[index, 'team1'] = abb_df.loc[row['team1'], 'Team']
+		df.at[index, 'team2'] = abb_df.loc[row['team2'], 'Team']
+
+	return df.set_index(['team1', 'team2', 'season', 'score1', 'score2'])
 
 def add_metadata(df, team_facts, dist_matrix, seasons_list, start_season_list, playoff_start_list):
 	#add columns for season, week, playoffs flag, away team off a bye, home team off a bye,
@@ -56,8 +77,9 @@ def add_metadata(df, team_facts, dist_matrix, seasons_list, start_season_list, p
 		team_facts_classes[t] = Team(res[0], res[1], res[2])
 
 	df = final_clean(df).sort_values(by = ['Date'])
+	elo_df = get_trimmed_elo_data()
 	last_game_tracker = {} # map 'team': 'Week' of last game
-	season, week, playoffs, home_off_bye, away_off_bye, conference, division, travel_dist = [], [], [], [], [], [], [], []
+	home_elo, away_elo, season, week, playoffs, home_off_bye, away_off_bye, conference, division, travel_dist = [], [], [], [], [], [], [], [], [], []
 	for index, row in df.iterrows():
 		date = row['Date']
 		date_int = int(date)
@@ -84,7 +106,18 @@ def add_metadata(df, team_facts, dist_matrix, seasons_list, start_season_list, p
 		travel_dist.append(int(dist_matrix[(homeTeam.city, awayTeam.city)]))
 		conference.append(1 if homeTeam.conference == awayTeam.conference else 0)
 		division.append(1 if homeTeam.division == awayTeam.division else 0)
+
+
+		try:
+			this_game = elo_df.loc[(row['Home'], row['Away'], season[-1], row['Home_Final'], row['Away_Final'])]
+		except:
+			#home and away got mixed up because game at neutral location (e.g. SF vs. DEN in 2010)
+			this_game = elo_df.loc[(row['Away'], row['Home'], season[-1], row['Away_Final'], row['Home_Final'])]
+		home_elo.append(this_game.elo1_pre.values[0])
+		away_elo.append(this_game.elo2_pre.values[0])
 	
+	df['AwayELO'] = away_elo
+	df['HomeELO'] = home_elo
 	df['Season'] = season
 	df['Week'] = week
 	df['Playoffs'] = playoffs
