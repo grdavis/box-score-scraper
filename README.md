@@ -14,7 +14,7 @@ There are effectively two steps in the process: scraping and cleaning. `scraper.
 ## Cleaned Data Contents
 This repository contains the following:
 * `NHL/nhl_cleaned.csv`: box scores for every NHL game between 10/7/2010 and 7/7/2021 (11 complete seasons, 13510 games)
-* `NBA/nba_cleaned.csv`: box scores for every NBA game between 10/26/2010 and 10/11/2020 (10 complete seasons, 13892 games)
+* `NBA/nba_cleaned.csv`: box scores for every NBA game between 10/26/2010 and 10/11/2020 (11 complete seasons, 13892 games)
 * `NFL/nfl_cleaned.csv`: box scores for every NFL game between 9/9/2010 and 2/7/2021 (11 complete seasons, 2939 games)
 
 ## Data Fields
