@@ -62,7 +62,7 @@ def main(filepath, league_text, this_league):
 	df.to_csv(league_text + '/' + league_text + '_cleaned.csv', index = False)
 
 if __name__ == '__main__':
-	# main("NHL/NHL_2010-2019.2_season.csv", "NHL", nhl)
-	# main("NBA/NBA_2010-2019.2_season.csv", "NBA", nba)
+	# main("NHL/NHL_2010-2020_season.csv", "NHL", nhl)
+	# main("NBA/NBA_2010-2020_season.csv", "NBA", nba)
 	# main("NFL/NFL_2010-2020_season.csv", "NFL", nfl)
 	pass

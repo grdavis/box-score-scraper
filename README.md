@@ -58,3 +58,5 @@ All files have similar fields. A brief description of each of the fields is prov
 | Intradivision | Flag for opponents in the same division (NFL only) |
 | AwayBye | Flag indicating Away team is coming off a bye week (NFL only) |
 | HomeBye | Flag indicating Home team is coming off a bye week (NFL only) |
+| AwayELO | FiveThirtyEight's ELO rating for the Away team at time of game (NFL only) |
+| HomeBye | FiveThirtyEight's ELO rating for the Home team at time of game (NFL only) |

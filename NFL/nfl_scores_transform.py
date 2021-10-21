@@ -4,7 +4,7 @@ import pandas as pd
 from datetime import date
 
 NORMAL_COLS = 13
-MAX_OTS = 1
+MAX_OTS = 2
 COL_BASE = ['Away', 'AQ1', 'AQ2', 'AQ3', 'AQ4'] + ['AOT%s' % str(i) for i in range(1, MAX_OTS + 1)] + ['Away_Final', 'Home', 'HQ1', 'HQ2', 'HQ3', 'HQ4'] + ['HOT%s' % str(i) for i in range(1, MAX_OTS + 1)] + ['Home_Final', 'Date']
 
 def extend_rows(data):
@@ -124,7 +124,7 @@ def add_metadata(df, team_facts, dist_matrix, seasons_list, start_season_list, p
 	df['AwayBye'] = away_off_bye
 	df['HomeBye'] = home_off_bye
 	df['Intraconference'] = conference
-	df['Intradividion'] = division
+	df['Intradivision'] = division
 	df['TravelDist'] = travel_dist
 	return df
 
