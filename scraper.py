@@ -33,8 +33,9 @@ def scrape_season_by_day(scraper, start, end, save_name, all_data, ignore_dates)
 def scrape_season_by_week(scraper, year, save_name, all_data):
 	#repeatedly scrape scores for every week in the NFL season (only used for NFL)
 	season_data = []
+	weeks_in_season = 17 if int(year) < 2021 else 18
 	for stype in ['2', '3']:
-		for week in [str(i) for i in range(1, 18)]:
+		for week in [str(i) for i in range(1, weeks_in_season + 1)]:
 			if stype == '3' and week == '4': continue
 			if stype == '3' and week > '5': break
 			season_data.extend(scraper(week, year, stype))
@@ -43,13 +44,25 @@ def scrape_season_by_week(scraper, year, save_name, all_data):
 	save_data(save_name, all_data)
 	return all_data
 
-def main(league, scraper):
-	#assumes starting from scratch - need to modify if some data already exists
-	#an iterative, season-by-season approach prevents trying to scrape days in the off-season and saves data more frequently in case errors arise
+def main(league, scraper, existing_data_filepath = None):
+	#if existing_data_filepath is not set, this function iterates over each season in the league's season facts csv
+	#and scrapes games day by day/week by week. Saves data after each season in case errors arise along the way
+	#
+	#if wanting to add a single new season (e.g. the 2021 season just ended and you have the 2020 data alreadys),
+	#set the existing_data_filepath to the previous, uncleaned csv. The function will then start with that data
+	#and only scrape new data for the last season added to the league's season_facts csv
+	
 	with open(league + '/season_facts.csv') as csvfile:
 		facts_list = list(csv.reader(csvfile))[1:]
-	all_data, ignore = [], []
-	start_year = facts_list[0][0]
+
+	if existing_data_filepath == None:
+		all_data, ignore = [], []
+		start_year = facts_list[0][0]
+	else:
+		all_data, ignore = read_csv(existing_data_filepath), []
+		start_year = existing_data_filepath[8:12]
+		facts_list = [facts_list[-1]]
+	
 	if league == 'NFL':
 		for row in facts_list:
 			save_name = league + '/' + league + '_' + start_year + '-' + str(row[0]) + '_season.csv'
@@ -66,7 +79,13 @@ def main(league, scraper):
 			all_data = read_csv(save_name)
 
 if __name__ == '__main__':
+	#make sure each league's season_facts.csv file is up to date with metadata before running
+	#Scrape from scratch examples:
 	# main('NBA', nba_scrape)
 	# main('NHL', nhl_scrape)
-	# main('NFL', nfl_scrape)
-	pass
+	main('NFL', nfl_scrape)
+
+	#Scrape just the latest season examples:
+	# main('NBA', nba_scrape, existing_data_filepath = 'NBA/NBA_2010-2020_season.csv')
+	# main('NHL', nhl_scrape, existing_data_filepath = 'NHL/NHL_2010-2020_season.csv')
+	# main('NFL', nfl_scrape, existing_data_filepath = 'NFL/NFL_2010-2020_season.csv')
